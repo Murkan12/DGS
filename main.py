@@ -65,11 +65,19 @@ def sync_with_calendar(events, calendar_id):
     for event in events:
         event_exists = False
         for existing_event in existing_events:
-            if existing_event['summary'] == event['summary'] and existing_event['start']['dateTime'] == event['start']['dateTime']:
+
+            if existing_event['summary'] == event['summary']:
                 event_exists = True
+                print(f'Event for {event['summary']} passed')
+                if existing_event['start']['dateTime'] != event['start']['dateTime']:
+                    existing_event['start'] = event['start']
+                    existing_event['end'] = event['end']
+                    calendar_service.events().update(calendarId=calendar_id, eventId=existing_event['id'], body=existing_event).execute()
+                    print(f'Updated event for {existing_event['summary']}')
                 break
-            if not event_exists:
-                calendar_service.events().insert(calendarId=calendar_id, body=event).execute()
+        if not event_exists:
+            print('Inserting event')
+            calendar_service.events().insert(calendarId=calendar_id, body=event).execute()
 
 if __name__ == '__main__':
     # Create a new calendar and get its ID (deprecieted)
