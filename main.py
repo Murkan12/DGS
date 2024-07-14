@@ -2,6 +2,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 import datetime
+from dateutil import parser
 
 # Authenticate and connect to Google Sheets
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/drive']
@@ -58,6 +59,16 @@ def create_calendar():
     created_calendar = calendar_service.calendars().insert(body=calendar).execute()
     return created_calendar['id']
 
+def compare_dates(date_str1, date_str2):
+    try:
+        date1 = parser.parse(date_str1)
+        date2 = parser.parse(date_str2)
+        
+        return date1 == date2
+    except ValueError as e:
+        print(f'Error parsing dates: {e}')
+        return False
+
 # Function to sync events with the dedicated calendar
 def sync_with_calendar(events, calendar_id):
     existing_events = calendar_service.events().list(calendarId=calendar_id).execute().get('items', [])
@@ -65,11 +76,10 @@ def sync_with_calendar(events, calendar_id):
     for event in events:
         event_exists = False
         for existing_event in existing_events:
-
             if existing_event['summary'] == event['summary']:
                 event_exists = True
                 print(f'Event for {event['summary']} passed')
-                if existing_event['start']['dateTime'] != event['start']['dateTime']:
+                if not compare_dates(existing_event['start']['dateTime'], event['start']['dateTime']):
                     existing_event['start'] = event['start']
                     existing_event['end'] = event['end']
                     calendar_service.events().update(calendarId=calendar_id, eventId=existing_event['id'], body=existing_event).execute()
