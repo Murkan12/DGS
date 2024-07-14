@@ -1,4 +1,4 @@
-name: Build Executable
+name: Build and Release Executable
 
 on:
   push:
@@ -25,6 +25,9 @@ jobs:
 
     - name: Build executable
       run: pyinstaller --onefile --name dgs main.py
+
+    - name: List dist directory
+      run: dir dist
 
     - name: Create Release
       id: create_release
