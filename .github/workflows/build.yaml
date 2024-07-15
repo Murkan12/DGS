@@ -29,7 +29,7 @@ jobs:
     - name: List dist directory
       run: dir dist
 
-    - name: Create existing release
+    - name: Delete existing release
       run: |
         gh release delete v1.0.0 -y || true
         git tag -d v1.0.0 || true
