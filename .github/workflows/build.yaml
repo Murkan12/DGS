@@ -28,13 +28,21 @@ jobs:
 
     - name: List dist directory
       run: dir dist
+    
+    - name: Install GitHub CLI
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - run: npm install -g @octokit/rest
 
     - name: Delete existing release
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        gh auth login --with-token <<< "${GH_TOKEN}"
         gh release delete v1.0.0 -y || true
         git tag -d v1.0.0 || true
-      env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
     - name: Create Release
       id: create_release
