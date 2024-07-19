@@ -3,10 +3,15 @@ from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 import datetime
 from dateutil import parser
+import logging
+
+# Setup logging
+logging.basicConfig(filename='dgs.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
 # Authenticate and connect to Google Sheets
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPES)
+delegated_creds = creds.with_subject
 gc = gspread.authorize(creds)
 
 # Open the Google Sheets file
@@ -29,6 +34,7 @@ def fetch_events_from_sheets():
     events = []
     
     for row in rows:
+        logging.info(f"Row Data: {row}")
         # Check if row has empty values and if so skip to the next row
         empty_vals = row[1] == '' or row[2] == '' 
         if empty_vals:
@@ -38,8 +44,8 @@ def fetch_events_from_sheets():
             continue
         
         print(f'Row Data: {row}')
-        date_str = row[2] 
-        event_title = row[1]
+        date_str = row[2]
+        event_title = 'Koniec umowy: ' + row[1]
         date = datetime.datetime.strptime(date_str, '%d.%m.%Y')
         events.append({
             'summary': event_title,
@@ -51,13 +57,34 @@ def fetch_events_from_sheets():
 
 # Function to create the dedicated calendar
 def create_calendar():
-    calendar = {
-        'summary': 'DeadlineGS',
-        'timeZone': 'UTC'
-    }
+    try:
+        calendar = {
+            'summary': 'DGS',
+            'timeZone': 'UTC'
+        }
+        
+        created_calendar = calendar_service.calendars().insert(body=calendar).execute()
+        calendar_id = created_calendar['id']
+        print(calendar_id)
+        
+        logging.info(f'Calendar created: {created_calendar['id']}')
+        
+        rule = {
+            'scope': {
+                'type': 'user',
+                'value': 'deadlinegs-218@deadlinegs.iam.gserviceaccount.com'
+            },
+            'role': 'writer'
+        }
+        
+        # created_rule = calendar_service.acl().insert(calendarId=calendar_id, body=rule).execute()
+        # logging.info(f'Rule created: {created_rule}')
     
-    created_calendar = calendar_service.calendars().insert(body=calendar).execute()
-    return created_calendar['id']
+        return calendar_id
+        
+    except Exception as e:
+        logging.error(f'An error occurred while creating the calendar: {e}')
+        return None
 
 def compare_dates(date_str1, date_str2):
     try:
