@@ -5,7 +5,6 @@ import gspread
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 import datetime
 from dateutil import parser
@@ -26,6 +25,11 @@ CREDENTIALS_FILE = 'credentials.json'
 
 def create_calendar():
     try:
+        calendar_list = calendar_service.calendarList().list().execute()
+        for calendar in calendar_list['items']:
+            if calendar['summary'] == 'DGS':
+                return calendar['id']
+        
         calendar = {
             'summary': 'DGS',
             'timeZone': 'UTC'
@@ -35,17 +39,6 @@ def create_calendar():
         calendar_id = created_calendar['id']
         
         logging.info(f'Calendar created: {created_calendar['id']}')
-        
-        rule = {
-            'scope': {
-                'type': 'user',
-                'value': EMAIL
-            },
-            'role': 'writer'
-        }
-        
-        created_rule = calendar_service.acl().insert(calendarId=calendar_id, body=rule).execute()
-        logging.info(f'Rule created: {created_rule}')
         
         return calendar_id
     
@@ -151,7 +144,8 @@ if __name__ == '__main__':
         calendar_service = build('calendar', 'v3', credentials=creds)
         
         calendar_id = create_calendar()
-        print(calendar_id)
+        if calendar_id is None:
+            raise Exception(f'Calendar creation failed')
     
         # Fetch events from Google Sheets
         events = fetch_events_from_sheets()
@@ -162,3 +156,4 @@ if __name__ == '__main__':
         logging.info('Script completed successfully')
     except Exception as e:
         logging.error(f'An error occurred: {e}')
+        logging.error(f'Script failed')
