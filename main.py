@@ -1,6 +1,4 @@
 import os
-import json
-from dotenv import load_dotenv
 import gspread
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -13,14 +11,10 @@ import logging
 # Setup logging
 logging.basicConfig(filename='dgs.log', level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
 
-# Setup loading enviromental variables
-load_dotenv()
-
 # Authenticate and connect to Google Sheets
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/calendar', 'https://www.googleapis.com/auth/drive', 
           'https://www.googleapis.com/auth/calendar.events']
 TOKEN_FILE = 'token.json'
-EMAIL = os.getenv('EMAIL')
 CREDENTIALS_FILE = 'credentials.json'
 
 def create_calendar():
