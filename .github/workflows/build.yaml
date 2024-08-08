@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
@@ -31,16 +31,16 @@ jobs:
     - name: List dist directory
       run: dir dist
     
-    - name: Install GitHub CLI
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'
+#    - name: Install GitHub CLI
+#      uses: actions/setup-node@v2
+#      with:
+#        node-version: '14'
 
-    - run: npm install -g @octokit/rest
+#    - run: npm install -g @octokit/rest
 
-    - name: Authenticate GitHub CLI
-      run: |
-        echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+#    - name: Authenticate GitHub CLI
+#      run: |
+#        echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
 
 #    - name: Delete existing release
 #      env:
