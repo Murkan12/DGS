@@ -1,9 +1,12 @@
 name: Build and Release Executable
 
 on:
-  push:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      executable_name:
+        description: 'The name of the executable'
+        required: true
+        type: string
 
 jobs:
   versioning:
@@ -52,7 +55,9 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build executable
-      run: pyinstaller --onefile --name dgs main.py
+      env:
+        EXECUTABLE_NAME: ${{ inputs.executable_name }}
+      run: pyinstaller --onefile --name "$EXECUTABLE_NAME" main.py
 
     - name: List dist directory
       run: dir dist
@@ -74,6 +79,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: dist/dgs.exe
-        asset_name: dgs.exe
+        asset_path: dist/${{ inputs.executable_name }}
+        asset_name: ${{ inputs.executable_name }}
         asset_content_type: application/octet-stream
