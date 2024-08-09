@@ -6,8 +6,30 @@ on:
       - main
 
 jobs:
-  build:
+  versioning:
     runs-on: ubuntu-latest
+    outputs:
+      next_version: ${{ steps.semver.outputs.patch }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Get Previous Tag
+      id: previoustag
+      uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Get Next Minor Version
+      id: semver
+      uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+      with:
+        version: ${{ steps.previoustag.outputs.tag }}
+
+  build:
+    runs-on: windows-latest
+    needs: versioning
 
     steps:
     - name: Checkout code
@@ -30,36 +52,6 @@ jobs:
 
     - name: List dist directory
       run: dir dist
-    
-#    - name: Install GitHub CLI
-#      uses: actions/setup-node@v2
-#      with:
-#        node-version: '14'
-
-#    - run: npm install -g @octokit/rest
-
-#    - name: Authenticate GitHub CLI
-#      run: |
-#        echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
-
-#    - name: Delete existing release
-#      env:
-#        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#      run: |
-#        gh release delete v1.0.0 -y || true
-#        git tag -d v1.0.0 || true
-
-    - name: Get Previous Tag
-      id: previoustag
-      uses: 'WyriHaximus/github-action-get-previous-tag@v1'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Get Next Minor Version
-      id: semver
-      uses: 'WyriHaximus/github-action-next-semvers@v1'
-      with:
-        version: ${{ steps.previoustag.outputs.tag }}
 
     - name: Create Release
       id: create_release
@@ -67,8 +59,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.semver.outputs.patch }}
-        release_name: Release ${{ steps.semver.outputs.patch }}
+        tag_name: ${{ needs.versioning.outputs.next_version }}
+        release_name: Release ${{ needs.versioning.outputs.next_version }}
         draft: false
         prerelease: false
 
