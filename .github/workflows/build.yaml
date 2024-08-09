@@ -59,7 +59,7 @@ jobs:
 
     - name: Rename executable
       run: |
-        mv dist/${{ inputs.executable_name }}
+        mv dist/main dist/${{ inputs.executable_name }}
 
     - name: List dist directory
       run: dir dist
