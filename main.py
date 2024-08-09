@@ -135,6 +135,10 @@ if __name__ == '__main__':
     logging.info('Script started')
     try:
         creds = get_credentials()
+        if creds is None:
+            error_message = "Credentials creation failed. Error details are located in dgs.log file inside project directory. \nPlease contact person responsible for the project. Press ENTER to exit this window."
+            raise Exception(error_message)
+        
         gc = gspread.authorize(creds)
 
         # Open the Google Sheets file
@@ -156,5 +160,7 @@ if __name__ == '__main__':
         
         logging.info('Script completed successfully')
     except Exception as e:
+        print(e)
+        input()
         logging.error(f'An error occurred: {e}')
         logging.error(f'Script failed')

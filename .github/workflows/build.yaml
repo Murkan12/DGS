@@ -25,6 +25,8 @@ jobs:
       uses: 'WyriHaximus/github-action-get-previous-tag@v1'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        fallback: 1.0.0
 
     - name: Get Next Minor Version
       id: semver
