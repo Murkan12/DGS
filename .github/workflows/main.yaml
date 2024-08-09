@@ -9,4 +9,4 @@ jobs:
   call-build-release-workflow:
     uses: ./.github/workflows/build.yaml
     with:
-      executable_name: dgs
+      executable_name: dgs.exe
