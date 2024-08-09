@@ -23,10 +23,14 @@ jobs:
 
     - name: Get Next Minor Version
       id: semver
-      uses: 'WyriHaximus/github-action-get-previous-tag@v1'
+      uses: 'WyriHaximus/github-action-next-semvers@v1'
       with:
         version: ${{ steps.previoustag.outputs.tag }}
 
+    - name: Output Next Version for Debugging
+      run: |
+        echo 'Next version: ${{ steps.semver.outputs.patch }}'
+      
   build:
     runs-on: windows-latest
     needs: versioning
