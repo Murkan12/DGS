@@ -55,9 +55,11 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build executable
-      env:
-        EXECUTABLE_NAME: ${{ inputs.executable_name }}
-      run: pyinstaller --onefile --name "$EXECUTABLE_NAME" main.py
+      run: pyinstaller --onefile main.py
+
+    - name: Rename executable
+      run: |
+        mv dist/${{ inputs.executable_name }}
 
     - name: List dist directory
       run: dir dist
