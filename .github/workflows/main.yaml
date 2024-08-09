@@ -1,0 +1,12 @@
+name: Main Workflow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  call-build-release-workflow:
+    uses: ./.github/workflows/build.yaml
+    with:
+      executable_name: dgs.exe
