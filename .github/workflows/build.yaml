@@ -39,6 +39,7 @@ jobs:
         echo 'Next version: ${{ steps.semver.outputs.patch }}'
       
   build:
+    permissions: write-all
     runs-on: windows-latest
     needs: versioning
 
