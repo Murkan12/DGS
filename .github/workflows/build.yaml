@@ -5,8 +5,16 @@ on:
     inputs:
       executable_name:
         description: 'The name of the executable'
+        required: false
+        type: string
+      repo_name:
+        description: 'The name of the repository'
         required: true
         type: string
+    secrets:
+      PRIVATE_REPO_TOKEN: 
+        description: 'Token for private repo access'
+        required: true
 
 jobs:
   versioning:
@@ -81,6 +89,7 @@ jobs:
         release_name: Release ${{ needs.versioning.outputs.next_version }}
         draft: false
         prerelease: false
+        repo: ${{ inputs.repo_name }}
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
