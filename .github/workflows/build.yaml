@@ -12,9 +12,9 @@ on:
         required: true
         type: string
     secrets:
-      PRIVATE_REPO_TOKEN: 
+      GITHUB_TOKEN: 
         description: 'Token for private repo access'
-        required: true
+        required: false
 
 jobs:
   versioning:
