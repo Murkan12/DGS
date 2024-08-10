@@ -12,7 +12,7 @@ on:
         required: true
         type: string
     secrets:
-      GITHUB_TOKEN: 
+      PRIVATE_REPO_TOKEN: 
         description: 'Token for private repo access'
         required: false
 
@@ -79,6 +79,15 @@ jobs:
     - name: List dist directory
       run: dir dist
 
+    - name: Set PAT if exists
+      shell: pwsh
+      run: |
+          if ($env:MY_SECRET -and $env:MY_SECRET -ne "") {
+            echo "MY_ENV_VAR" >> $env:GITHUB_ENV
+          }
+      env:
+        MY_SECRET: ${{ secrets.PRIVATE_REPO_TOKEN }}
+        
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
